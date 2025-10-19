@@ -9,7 +9,6 @@
 
 #define LYRICS_DIR "PENDING/.lyrics"
 #define CONFIG_DIR_NAME "verse"
-#define PROFANITY_FLAGS_CACHE "profanity_flags_cache.txt"
 
 #define MAX_LINE 1024
 #define MAX_LINES 100000
@@ -18,11 +17,6 @@ int load_lyrics(const char *dir, char *lines[], int max_lines);
 int pick_random_line(char *lines[], int line_count, bool allow_profanities);
 void print_line_pair(char *lines[], int idx, int line_count,
                      bool allow_profanities);
-void load_profanity_flags(const char *filename, int profane_flags[],
-                          int line_count);
-void generate_profanity_flags(char *lines[], int line_count,
-                              int profane_flags[], char *cache_path);
-int copy_file(const char *src, const char *dst);
 char *init_config_dir();
 
 // Array to store cached profanity flags (0 = clean, 1 = profane)
@@ -43,9 +37,6 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "--allow-profanities") == 0) {
       allow_profanities = true;
     }
-    if (strcmp(argv[i], "--generate-profanity-cache") == 0) {
-      need_generate = true;
-    }
   }
 
   char *lines[MAX_LINES];
@@ -55,42 +46,6 @@ int main(int argc, char *argv[]) {
     printf("No lyrics found.\n");
     return 1;
   }
-
-  char cache_file[PATH_MAX];
-  snprintf(cache_file, sizeof(cache_file), "%s/%s", config,
-           PROFANITY_FLAGS_CACHE);
-
-  /* if cache missing or size mismatch -> regenerate */
-  struct stat st;
-  if (stat(cache_file, &st) != 0) {
-    need_generate = true;
-  } else {
-    /* quick check: count lines in cache_file */
-    FILE *pf = fopen(cache_file, "r");
-    int cached_lines = 0;
-    char tmp[16];
-    while (pf && fgets(tmp, sizeof(tmp), pf))
-      cached_lines++;
-    if (pf)
-      fclose(pf);
-    if (cached_lines != line_count)
-      need_generate = true;
-  }
-
-  if (need_generate && !allow_profanities) {
-    printf("Profanity cache needs generating. Generating now... (this may take "
-           "a while depending on how large your lyrics database is)\n");
-    generate_profanity_flags(lines, line_count, profane_flags, cache_file);
-    FILE *out = fopen(cache_file, "w");
-    if (out) {
-      for (int i = 0; i < line_count; ++i)
-        fprintf(out, "%d\n", profane_flags[i]);
-      fclose(out);
-    }
-  } else {
-    load_profanity_flags(cache_file, profane_flags, line_count);
-  }
-  printf("%c", profane_flags[0]);
 
   int idx = pick_random_line(lines, line_count, allow_profanities);
   print_line_pair(lines, idx, line_count, allow_profanities);
@@ -154,27 +109,6 @@ int load_lyrics(const char *dir, char *lines[], int max_lines) {
 
 /* ---------------------------------------------------------- */
 
-void load_profanity_flags(const char *cache_path, int profane_flags[],
-                          int line_count) {
-  FILE *pf = fopen(cache_path, "r");
-  if (pf) {
-    for (int i = 0; i < line_count; i++) {
-      char buf[16];
-      if (fgets(buf, sizeof(buf), pf))
-        profane_flags[i] = atoi(buf);
-      else
-        profane_flags[i] = 0;
-    }
-    fclose(pf);
-  } else {
-    // cache not found -> init to clean
-    for (int i = 0; i < line_count; i++)
-      profane_flags[i] = 0;
-  }
-}
-
-/* ---------------------------------------------------------- */
-
 int pick_random_line(char *lines[], int line_count, bool allow_profanities) {
   int idx;
   while (1) {
@@ -216,80 +150,6 @@ void print_line_pair(char *lines[], int idx, int line_count,
 }
 
 /* ---------------------------------------------------------- */
-
-void generate_profanity_flags(char *lines[], int line_count,
-                              int profane_flags[], char *cache_path) {
-  char temp_input[] = "/tmp/lyrics_input.txt";
-
-  // write all lines to temp input file
-  FILE *f = fopen(temp_input, "w");
-  if (!f) {
-    perror("fopen temp_input");
-    for (int i = 0; i < line_count; i++)
-      profane_flags[i] = 0;
-    return;
-  }
-  for (int i = 0; i < line_count; i++)
-    fprintf(f, "%s\n", lines[i]);
-  fclose(f);
-
-  // call separate Python script to generate profanity flags
-  char cmd[4096];
-  snprintf(cmd, sizeof(cmd), "python3 check_profanity.py %s %s", temp_input,
-           cache_path);
-
-  int ret = system(cmd);
-  if (ret != 0) {
-    fprintf(stderr,
-            "Python profanity check failed, marking all lines clean.\n");
-    for (int i = 0; i < line_count; i++)
-      profane_flags[i] = 0;
-    return;
-  }
-
-  // read the flags back
-  FILE *pf = fopen(cache_path, "r");
-  if (pf) {
-    for (int i = 0; i < line_count; i++) {
-      char buf[16];
-      if (fgets(buf, sizeof(buf), pf))
-        profane_flags[i] = atoi(buf);
-      else
-        profane_flags[i] = 0;
-    }
-    fclose(pf);
-  } else {
-    for (int i = 0; i < line_count; i++)
-      profane_flags[i] = 0;
-  }
-
-  remove(temp_input);
-}
-
-int copy_file(const char *src, const char *dst) {
-  FILE *in = fopen(src, "rb");
-  if (!in)
-    return 1;
-  FILE *out = fopen(dst, "wb");
-  if (!out) {
-    fclose(in);
-    return 1;
-  }
-
-  char buf[4096];
-  size_t n;
-  while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
-    if (fwrite(buf, 1, n, out) != n) {
-      fclose(in);
-      fclose(out);
-      return 1;
-    }
-  }
-
-  fclose(in);
-  fclose(out);
-  return 0;
-}
 
 char *init_config_dir() {
   const char *xdg = getenv("XDG_CONFIG_HOME");
