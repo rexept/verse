@@ -14,13 +14,9 @@
 #define MAX_LINES 100000
 
 int load_lyrics(const char *dir, char *lines[], int max_lines);
-int pick_random_line(char *lines[], int line_count, bool allow_profanities);
-void print_line_pair(char *lines[], int idx, int line_count,
-                     bool allow_profanities);
+int pick_random_line(char *lines[], int line_count);
+void print_line_pair(char *lines[], int idx, int line_count);
 char *init_config_dir();
-
-// Array to store cached profanity flags (0 = clean, 1 = profane)
-int profane_flags[MAX_LINES];
 
 int main(int argc, char *argv[]) {
   srand(time(NULL));
@@ -31,14 +27,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  bool allow_profanities = false;
-  bool need_generate = false;
-  for (int i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "--allow-profanities") == 0) {
-      allow_profanities = true;
-    }
-  }
-
   char *lines[MAX_LINES];
   int line_count = load_lyrics(LYRICS_DIR, lines, MAX_LINES);
 
@@ -47,8 +35,8 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  int idx = pick_random_line(lines, line_count, allow_profanities);
-  // print_line_pair(lines, idx, line_count, allow_profanities);
+  int idx = pick_random_line(lines, line_count);
+  // print_line_pair(lines, idx, line_count);
   printf("%s\n", lines[idx]);
 
   for (int i = 0; i < line_count; i++)
@@ -110,7 +98,7 @@ int load_lyrics(const char *dir, char *lines[], int max_lines) {
 
 /* ---------------------------------------------------------- */
 
-int pick_random_line(char *lines[], int line_count, bool allow_profanities) {
+int pick_random_line(char *lines[], int line_count) {
   int idx;
   while (1) {
     idx = rand() % line_count;
@@ -119,15 +107,8 @@ int pick_random_line(char *lines[], int line_count, bool allow_profanities) {
     if (lines[idx][0] == '[' || lines[idx][0] == '(')
       continue;
 
-    // skip profanities unless allowed
-    if (!allow_profanities && profane_flags[idx])
-      continue;
-
-    // skip if next line is bracketed or profane
     if (idx + 1 < line_count) {
       if (lines[idx + 1][0] == '[' || lines[idx + 1][0] == '(')
-        continue;
-      if (!allow_profanities && profane_flags[idx + 1])
         continue;
     }
 
@@ -138,14 +119,11 @@ int pick_random_line(char *lines[], int line_count, bool allow_profanities) {
 
 /* ---------------------------------------------------------- */
 
-void print_line_pair(char *lines[], int idx, int line_count,
-                     bool allow_profanities) {
+void print_line_pair(char *lines[], int idx, int line_count) {
   printf("%s\n", lines[idx]);
 
   if (idx + 1 < line_count) {
     if (lines[idx + 1][0] != '[' && lines[idx + 1][0] != '(') {
-      if (allow_profanities || !profane_flags[idx + 1])
-        printf("%s\n", lines[idx + 1]);
     }
   }
 }

@@ -55,4 +55,5 @@ dkms.conf
 *.dwo
 
 main
+verse
 replacements.txt
