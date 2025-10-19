@@ -5,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 
-#define LYRICS_DIR ".lyrics"
+#define LYRICS_DIR "PENDING/.lyrics"
 
 #define MAX_LINE 1024
 #define MAX_LINES 100000
@@ -83,10 +83,11 @@ int pick_random_line(char *lines[], int line_count) {
   while (true) {
     idx = rand() % line_count;
 
-    if (lines[idx][0] == '[')
+    if (lines[idx][0] == '[' || lines[idx][0] == '(')
       continue;
 
-    if (idx + 1 < line_count && lines[idx + 1][0] == '[')
+    if (idx + 1 < line_count && lines[idx + 1][0] == '[' ||
+        lines[idx][0] == '(')
       continue;
 
     break;
@@ -96,6 +97,6 @@ int pick_random_line(char *lines[], int line_count) {
 
 void print_line_pair(char *lines[], int idx, int line_count) {
   printf("%s\n", lines[idx]);
-  if (idx + 1 < line_count && lines[idx + 1][0] != '[')
+  if (idx + 1 < line_count && lines[idx + 1][0] != '[' || lines[idx][0] != '(')
     printf("%s\n", lines[idx + 1]);
 }
