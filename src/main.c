@@ -5,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 
-#define LYRICS_DIR "PENDING/.lyrics"
+#define LYRICS_DIR "PENDING/lyrics"
 
 #define MAX_LINE 1024
 #define MAX_LINES 100000
