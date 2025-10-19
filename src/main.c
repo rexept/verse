@@ -48,7 +48,8 @@ int main(int argc, char *argv[]) {
   }
 
   int idx = pick_random_line(lines, line_count, allow_profanities);
-  print_line_pair(lines, idx, line_count, allow_profanities);
+  // print_line_pair(lines, idx, line_count, allow_profanities);
+  printf("%s\n", lines[idx]);
 
   for (int i = 0; i < line_count; i++)
     free(lines[i]);
