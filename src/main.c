@@ -29,6 +29,9 @@ int main(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--help") == 0) {
             print_help();
             return 0;
+        } else if (strcmp(argv[i], "-h") == 0) {
+            print_help();
+            return 0;
         }
     }
 
@@ -43,7 +46,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    char        lines[MAX_LINES];
+    char         lines[MAX_LINES];
     static char* artist = NULL;
     static char* title  = NULL;
     //
@@ -80,5 +83,5 @@ static void print_help(void) {
     printf("  --show-artist       Display the artist along with the quote\n");
     printf("  --show-title        Display the song title along with the quote\n");
     printf("  --show-meta         Display both the song title and artist with the quote\n");
-    printf("  --help              Show this help message and exit\n");
+    printf("  -h, --help          Show this help message and exit\n");
 }
