@@ -9,6 +9,10 @@
 
 #define LYRICS_DIR "PENDING/.lyrics"
 
+static void print_help(void);
+
+/* --------------------------------------- */
+
 int main(int argc, char* argv[]) {
     srand((unsigned)time(NULL));
 
@@ -23,6 +27,9 @@ int main(int argc, char* argv[]) {
             show_artist = true;
         } else if (strcmp(argv[i], "--show-title") == 0) {
             show_title = true;
+        } else if (strcmp(argv[i], "--help") == 0) {
+            print_help();
+            return 0;
         }
     }
 
@@ -71,4 +78,14 @@ int main(int argc, char* argv[]) {
     free(config);
 
     return 0;
+}
+
+static void print_help(void) {
+    printf("Usage: verse [FLAGS]\n");
+    printf("\nDisplay a random line from your lyrics database.\n\n");
+    printf("Options:\n");
+    printf("  --show-artist       Display the artist along with the quote\n");
+    printf("  --show-title        Display the song title along with the quote\n");
+    printf("  --show-meta         Display both the song title and artist with the quote\n");
+    printf("  --help              Show this help message and exit\n");
 }
