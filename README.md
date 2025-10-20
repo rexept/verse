@@ -32,7 +32,7 @@ Install with your local package manager.
 Edit these lines in the python script to your desired directories (defaults shown):
 
 ```python
-MUSIC_DIR = os.path.expanduser("~/music/tracks/misc")
+MUSIC_DIR = os.path.expanduser("~/music")
 LYRICS_DIR = os.path.expanduser("~/.lyrics")
 ```
 
