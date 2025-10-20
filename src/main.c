@@ -8,8 +8,6 @@
 #include "config.h"
 #include "parser.h"
 
-#define LYRICS_DIR "PENDING/.lyrics"
-
 static void print_help(void);
 
 /* --------------------------------------- */
