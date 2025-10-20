@@ -47,23 +47,27 @@ int main(int argc, char* argv[]) {
     char*        lines[MAX_LINES];
     static char* artists[MAX_LINES];
     static char* titles[MAX_LINES];
+    //
 
-    int          line_count = load_lyrics(LYRICS_DIR, lines, artists, titles, MAX_LINES);
+    int line_count = load_lyrics(LYRICS_DIR, lines, artists, titles, MAX_LINES);
     if (line_count == 0) {
         printf("No lyrics found.\n");
         free(config);
         return 1;
     }
 
-    int idx = pick_random_line(lines, line_count);
+    int         idx = pick_random_line(lines, line_count);
+
+    const char* artist = (artists[idx] && artists[idx][0] != '\0') ? artists[idx] : NULL;
+    const char* title  = (titles[idx] && titles[idx][0] != '\0') ? titles[idx] : NULL;
 
     if (show_artist || show_title) {
-        if (show_artist && artists[idx] && artists[idx][0] != '\0' && show_title && titles[idx] && titles[idx][0] != '\0') {
-            printf("%s - %s\n", artists[idx], titles[idx]);
-        } else if (show_artist && artists[idx] && artists[idx][0] != '\0') {
-            printf("%s\n", artists[idx]);
-        } else if (show_title && titles[idx] && titles[idx][0] != '\0') {
-            printf("%s\n", titles[idx]);
+        if (show_artist && show_title && artist && title) {
+            printf("%s - %s\n", artist, title);
+        } else if (show_artist && artist) {
+            printf("%s\n", artist);
+        } else if (show_title && title) {
+            printf("%s\n", title);
         }
     }
 
