@@ -1,12 +1,18 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "parser.h"
 #include "tagreader.h"
 
-void get_artist_title(const char* filename, char** artist, char** title) {
+void get_artist_title(const char* filename, char** artist, char** title, bool force_split_filename) {
+    if (force_split_filename) {
+        split_artist_title(filename, artist, title);
+        return;
+    }
+
     char* target_fname = remove_extension(filename);
     if (!target_fname) {
         split_artist_title(filename, artist, title);
@@ -15,7 +21,6 @@ void get_artist_title(const char* filename, char** artist, char** title) {
 
     if (!search_and_tag(MUSIC_DIR, target_fname, artist, title)) {
         split_artist_title(filename, artist, title);
-        printf("Using filename\n");
     }
     free(target_fname);
 }

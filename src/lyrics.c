@@ -7,6 +7,7 @@
 #include <dirent.h>
 
 #include "lyrics.h"
+#include "parser.h"
 
 void print_line_pair(char* lines[], char* artists[], char* titles[], int idx, int line_count, bool show_artist, bool show_title) {
     (void)line_count;
@@ -39,6 +40,87 @@ int pick_random_line(char* lines[], int line_count) {
         break;
     }
     return idx;
+}
+
+int pick_random_lyric(const char* dir, char* out_line, char** out_artist, char** out_title) {
+    struct dirent** namelist;
+    int             n = scandir(dir, &namelist, NULL, alphasort);
+    if (n < 0) {
+        perror("scandir");
+        return 0;
+    }
+
+    // srand((unsigned)time(NULL));
+
+    int total_seen = 0;
+    out_line[0]    = '\0';
+    *out_artist    = NULL;
+    *out_title     = NULL;
+
+    for (int i = 0; i < n; ++i) {
+        struct dirent* entry = namelist[i];
+
+        if (entry->d_type != DT_REG && entry->d_type != DT_UNKNOWN) {
+            free(entry);
+            continue;
+        }
+        if (!strstr(entry->d_name, ".txt")) {
+            free(entry);
+            continue;
+        }
+
+        char path[MAX_LINE];
+        snprintf(path, sizeof(path), "%s/%s", dir, entry->d_name);
+        FILE* f = fopen(path, "r");
+        if (!f) {
+            free(entry);
+            continue;
+        }
+
+        char* artist = NULL;
+        char* title  = NULL;
+        // Will always use filename splitter for metadata
+        get_artist_title(entry->d_name, &artist, &title, true);
+
+        char buffer[MAX_LINE];
+        while (fgets(buffer, sizeof(buffer), f)) {
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n')
+                buffer[len - 1] = '\0';
+
+            if (buffer[0] == '\0' || buffer[0] == '[' || buffer[0] == '(')
+                continue;
+            // In case lyric file has all lyrics on one line
+            if (strlen(buffer) > 100)
+                continue;
+
+            total_seen++;
+
+            if (rand() % total_seen == 0) {
+                // This line becomes the current selection
+                strncpy(out_line, buffer, MAX_LINE - 1);
+                out_line[MAX_LINE - 1] = '\0';
+
+                // Replace previous artist/title if they existed
+                if (*out_artist)
+                    free(*out_artist);
+                if (*out_title)
+                    free(*out_title);
+
+                *out_artist = artist ? strdup(artist) : strdup("");
+                *out_title  = title ? strdup(title) : strdup("");
+            }
+        }
+
+        free(artist);
+        free(title);
+        fclose(f);
+        free(entry);
+    }
+
+    free(namelist);
+
+    return total_seen > 0 ? 1 : 0;
 }
 
 int load_lyrics(const char* dir, char* lines[], char* artists[], char* titles[], int max_lines) {
@@ -75,7 +157,7 @@ int load_lyrics(const char* dir, char* lines[], char* artists[], char* titles[],
 
         char* artist = NULL;
         char* title  = NULL;
-        get_artist_title(entry->d_name, &artist, &title);
+        get_artist_title(entry->d_name, &artist, &title, false);
 
         while (fgets(buffer, sizeof(buffer), f)) {
             size_t len = strlen(buffer);

@@ -6,6 +6,7 @@
 
 #include "lyrics.h"
 #include "config.h"
+#include "parser.h"
 
 #define LYRICS_DIR "PENDING/.lyrics"
 
@@ -44,22 +45,15 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    char*        lines[MAX_LINES];
-    static char* artists[MAX_LINES];
-    static char* titles[MAX_LINES];
+    char        lines[MAX_LINES];
+    static char* artist = NULL;
+    static char* title  = NULL;
     //
 
-    int line_count = load_lyrics(LYRICS_DIR, lines, artists, titles, MAX_LINES);
-    if (line_count == 0) {
-        printf("No lyrics found.\n");
-        free(config);
+    if (!pick_random_lyric(LYRICS_DIR, lines, &artist, &title)) {
+        printf("No lyrics found");
         return 1;
     }
-
-    int         idx = pick_random_line(lines, line_count);
-
-    const char* artist = (artists[idx] && artists[idx][0] != '\0') ? artists[idx] : NULL;
-    const char* title  = (titles[idx] && titles[idx][0] != '\0') ? titles[idx] : NULL;
 
     if (show_artist || show_title) {
         if (show_artist && show_title && artist && title) {
@@ -72,13 +66,10 @@ int main(int argc, char* argv[]) {
     }
 
     // print_line_pair(lines, idx, line_count);
-    printf("%s\n", lines[idx]);
+    printf("%s\n", lines);
 
-    for (int i = 0; i < line_count; ++i) {
-        free(lines[i]);
-        free(artists[i]);
-        free(titles[i]);
-    }
+    free(artist);
+    free(title);
     free(config);
 
     return 0;
