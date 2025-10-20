@@ -29,11 +29,11 @@ int pick_random_line(char* lines[], int line_count) {
         idx = rand() % line_count;
 
         // skip bracketed lines
-        if (lines[idx][0] == '[' || lines[idx][0] == '(')
+        if (lines[idx][0] == '[' || lines[idx][0] == '(' || lines[idx][0] == '*')
             continue;
 
         if (idx + 1 < line_count) {
-            if (lines[idx + 1][0] == '[' || lines[idx + 1][0] == '(')
+            if (lines[idx + 1][0] == '[' || lines[idx + 1][0] == '(' || lines[idx + 1][0] == '*')
                 continue;
         }
 
@@ -88,7 +88,7 @@ int pick_random_lyric(const char* dir, char* out_line, char** out_artist, char**
             if (len > 0 && buffer[len - 1] == '\n')
                 buffer[len - 1] = '\0';
 
-            if (buffer[0] == '\0' || buffer[0] == '[' || buffer[0] == '(')
+            if (buffer[0] == '\0' || buffer[0] == '[' || buffer[0] == '(' || buffer[0] == '*')
                 continue;
             // In case lyric file has all lyrics on one line
             if (strlen(buffer) > 100)
