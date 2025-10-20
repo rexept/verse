@@ -1,6 +1,15 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Isrc
-LDFLAGS =
+
+HAVE_TAGLIB := $(shell pkg-config --exists taglib && echo yes || echo no)
+
+ifeq ($(HAVE_TAGLIB),no)
+  $(warning "TagLib not found. Building without metadata support. Filename parsing will be used.")
+else
+  CFLAGS += $(shell pkg-config --cflags taglib_c)
+  CFLAGS += -DWITH_TAGLIB
+  LDFLAGS += $(shell pkg-config --libs taglib_c)
+endif
 
 TARGET = verse
 
