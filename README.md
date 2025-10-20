@@ -28,7 +28,15 @@ cd verse
 
 Install with your local package manager.
 
-### Compile locally
+#### To use the lyrics downloader:
+Edit these lines in the python script to your desired directories (defaults shown):
+
+```python
+MUSIC_DIR = os.path.expanduser("~/music/tracks/misc")
+LYRICS_DIR = os.path.expanduser("~/.lyrics")
+```
+
+### Compile verse locally
 
 ```bash
 make LYRICS_DIR={your lyrics directory here, defaults to $HOME/.lyrics}

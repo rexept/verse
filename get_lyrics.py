@@ -6,7 +6,7 @@ import re
 from mutagen import File
 
 MUSIC_DIR = os.path.expanduser("~/music/tracks/misc")
-LYRICS_DIR = os.path.expanduser("~/lyrics")
+LYRICS_DIR = os.path.expanduser("~/.lyrics")
 FAILED_FILE = os.path.join(LYRICS_DIR, "failed.json")
 os.makedirs(LYRICS_DIR, exist_ok=True)
 
