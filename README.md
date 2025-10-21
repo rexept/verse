@@ -39,12 +39,12 @@ LYRICS_DIR = os.path.expanduser("~/.lyrics")
 ### Compile verse locally
 
 ```bash
-make LYRICS_DIR={your lyrics directory here, defaults to $HOME/.lyrics}
+make LYRICS_DIR=<your lyrics directory here, defaults to $HOME/.lyrics>
 ```
 ### Or install globally
 
 ```bash
-sudo make LYRICS_DIR={your lyrics directory here, defaults to $HOME/.lyrics} install
+sudo make LYRICS_DIR=<your lyrics directory here, defaults to $HOME/.lyrics> install
 ```
 ## 🚀 Usage
 
