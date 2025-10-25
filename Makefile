@@ -35,7 +35,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-install: $(TARGET)
+install: all
 	install -Dm755 $(TARGET) $(INSTALL_DIR)/$(TARGET)
 	@echo "Installed $(TARGET) to $(INSTALL_DIR)"
 
