@@ -26,10 +26,7 @@ int main(int argc, char* argv[]) {
             show_artist = true;
         } else if (strcmp(argv[i], "--show-title") == 0) {
             show_title = true;
-        } else if (strcmp(argv[i], "--help") == 0) {
-            print_help();
-            return 0;
-        } else if (strcmp(argv[i], "-h") == 0) {
+        } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_help();
             return 0;
         }
