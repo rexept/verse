@@ -29,6 +29,9 @@ int main(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_help();
             return 0;
+        } else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            printf("verse-" VERSION);
+            return 0;
         }
     }
 
@@ -81,4 +84,5 @@ static void print_help(void) {
     printf("  --show-title        Display the song title along with the quote\n");
     printf("  --show-meta         Display both the song title and artist with the quote\n");
     printf("  -h, --help          Show this help message and exit\n");
+    printf("  -v, --version       Display the current version of verse\n");
 }

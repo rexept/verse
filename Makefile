@@ -1,10 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Isrc
 
+VERSION = 1.0.0
+CFLAGS += -DVERSION=\"$(VERSION)\"
+
 MUSIC_DIR = $(HOME)/music
 CFLAGS += -DMUSIC_DIR=\"$(MUSIC_DIR)\"
 CFLAGS += -DLYRICS_DIR=\"$(HOME)/.lyrics\"
-
 
 HAVE_TAGLIB := $(shell pkg-config --exists taglib && echo yes || echo no)
 
