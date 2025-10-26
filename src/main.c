@@ -6,7 +6,6 @@
 
 #include "lyrics.h"
 #include "config.h"
-#include "parser.h"
 
 static void print_help(void);
 
