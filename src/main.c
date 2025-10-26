@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
+#include <getopt.h>
 
 #include "lyrics.h"
 #include "config.h"
@@ -11,32 +11,51 @@ static void print_help(void);
 
 /* --------------------------------------- */
 
+typedef struct {
+  int f_show_artist;
+  int f_show_title;
+  int f_show_meta;
+} meta;
+
 int main(int argc, char* argv[]) {
     srand((unsigned)time(NULL));
 
-    bool show_meta   = false;
-    bool show_artist = false;
-    bool show_title  = false;
+    static meta m;
+    int c;
 
-    for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--show-meta") == 0) {
-            show_meta = true;
-        } else if (strcmp(argv[i], "--show-artist") == 0) {
-            show_artist = true;
-        } else if (strcmp(argv[i], "--show-title") == 0) {
-            show_title = true;
-        } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            print_help();
-            return 0;
-        } else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
-            printf("verse-" VERSION);
-            return 0;
+    for (;;) {
+        int option_index = 0;
+        static struct option long_options[] = {
+            {"show-meta", no_argument, &m.f_show_meta, true},
+            {"show-artist", no_argument, &m.f_show_artist, true},
+            {"show-title", no_argument, &m.f_show_title, true},
+            {"version", no_argument, NULL, 'v'},
+            {"help", no_argument, NULL, 'h'},
+            {NULL, 0, NULL, 0}
+        };
+
+        c = getopt_long(argc, argv, "vh", long_options, &option_index);
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 0:
+                break;
+            case 'v':
+                printf("verse-" VERSION);
+                return 0;
+            case 'h':
+                print_help();
+                return 0;
+            default:
+                fprintf(stderr, "Usage: %s [FLAGS]\nSee help for more info", argv[0]);
+                return EXIT_SUCCESS;
         }
     }
 
     /* --show-meta implies both artist and title */
-    if (show_meta) {
-        show_artist = show_title = true;
+    if (m.f_show_meta) {
+        m.f_show_artist = m.f_show_title = true;
     }
 
     char* config = init_config_dir();
@@ -55,12 +74,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (show_artist || show_title) {
-        if (show_artist && show_title && artist && title) {
+    if (m.f_show_artist || m.f_show_title) {
+        if (m.f_show_artist && m.f_show_title && artist && title) {
             printf("%s - %s\n", artist, title);
-        } else if (show_artist && artist) {
+        } else if (m.f_show_artist && artist) {
             printf("%s\n", artist);
-        } else if (show_title && title) {
+        } else if (m.f_show_title && title) {
             printf("%s\n", title);
         }
     }
