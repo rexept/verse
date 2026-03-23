@@ -1,6 +1,6 @@
 # 🎵 Verse
 
-A simple command-line tool that fetches lyrics for your music collection and prints a random lyric line — like the classic `fortune` command, but for your songs.
+A simple command-line tool that fetches lyrics for your music collection and prints a random lyric line. Just like the classic `fortune` command, but for your songs.
 
 ---
 
